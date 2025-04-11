@@ -15,7 +15,7 @@ class BaseDict():
     def add_student_answer(self, teacher_login, student, answer): # добавляет ответ ученика на вопрос
         if not self.dict[teacher_login]["answers"].get(student): # проверка существует ли ученик в словаре с ответами
             self.dict[teacher_login]["answers"][student] = []
-        mark = answer == self.dict[teacher_login]["question"][-1][1] # проверка совпадает ли с правильным ответом на последний вопрос
+        mark = answer == self.dict[teacher_login]["question"][-1][1] # проверка совпадает ли ответ ученика с правильным ответом на последний вопрос
         self.dict[teacher_login]["answers"][student].append([answer, mark])
 
     def chаnge_mark(self, teacher_login, student): # меняет правильность или неправильность последнего ответа ученика
