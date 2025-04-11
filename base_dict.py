@@ -13,7 +13,7 @@ class BaseDict():
         self.dict[teacher_login]["question"].append([question_text, correct_answer, mark])
 
     def add_student_answer(self, teacher_login, student, answer): # добавляет ответ ученика на вопрос
-        if not self.dict[teacher_login]["answers"].get(student): # проверку существует ли ученик в словаре с ответами
+        if not self.dict[teacher_login]["answers"].get(student): # проверка существует ли ученик в словаре с ответами
             self.dict[teacher_login]["answers"][student] = []
         mark = answer == self.dict[teacher_login]["question"][-1][1] # проверка совпадает ли с правильным ответом на последний вопрос
         self.dict[teacher_login]["answers"][student].append([answer, mark])
