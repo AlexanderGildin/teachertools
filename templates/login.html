@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TeacherTools</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .toggle-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .toggle-checkbox {
+            display: none;
+        }
+
+        .toggle-label {
+            display: inline-block;
+            width: 50px;
+            height: 26px;
+            background-color: #ccc;
+            border-radius: 13px;
+            position: relative;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-left: 0.5rem;
+            margin-right: 0.5rem;
+        }
+
+        .toggle-label::before {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background-color: white;
+            border-radius: 50%;
+            top: 3px;
+            left: 3px;
+            transition: transform 0.3s ease;
+        }
+
+        .toggle-checkbox:checked + .toggle-label {
+            background-color: #3b82f6;
+        }
+
+        .toggle-checkbox:checked + .toggle-label::before {
+            transform: translateX(24px);
+        }
+
+        #student-form-section,
+        #teacher-form-section {
+            margin-top: 1.5rem;
+        }
+    </style>
+
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center">
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-md mx-auto bg-white rounded-xl shadow-md overflow-hidden p-8">
+        <div class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-blue-600 mb-2">TeacherTools</h1>
+            <p class="text-gray-600">Мгновенные опросы для учителей и учеников</p>
+        </div>
+
+        <div class="mb-6">
+            <!-- Переключатель Ученик/Учитель -->
+            <div class="toggle-container">
+                <span class="text-sm font-medium text-gray-700">Ученик</span>
+                <!-- Скрытый чекбокс -->
+                <input type="checkbox" id="role-toggle" class="toggle-checkbox" name="is_teacher_toggle" value="true">
+                <!-- Видимая метка-переключатель -->
+                <label for="role-toggle" class="toggle-label"></label>
+                <span class="text-sm font-medium text-gray-700">Учитель</span>
+            </div>
+
+            <!-- Форма для ученика -->
+            <form id="student-form-section" method="POST" action="/teachertools/templates/index.html">
+                <input type="hidden" name="role" value="student">
+                <div class="space-y-4">
+                    <div>
+                        <label for="studentName" class="block text-sm font-medium text-gray-700">ФИО ученика</label>
+                        <input type="text" id="studentName" name="username" required
+                               class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label for="studentPassword" class="block text-sm font-medium text-gray-700">Пароль
+                            ученика</label>
+                        <input type="password" id="studentPassword" name="password" required
+                               class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label for="teacherLogin_for_student" class="block text-sm font-medium text-gray-700">Логин
+                            учителя (к которому подключаетесь)</label>
+                        <input type="text" id="teacherLogin_for_student" name="teacher_login" required
+                               class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <button type="submit"
+                            class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        Войти как Ученик
+                    </button>
+                </div>
+            </form>
+
+            <!-- Форма для учителя -->
+            <form id="teacher-form-section" method="POST" action="/teachertools/templates/index.html" class="hidden">
+                <input type="hidden" name="role" value="teacher">
+                <div class="space-y-4">
+                    <div>
+                        <label for="teacherLoginInput" class="block text-sm font-medium text-gray-700">Логин
+                            учителя</label>
+                        <input type="text" id="teacherLoginInput" name="username" required
+                               class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label for="teacherPassword" class="block text-sm font-medium text-gray-700">Пароль
+                            учителя</label>
+                        <input type="password" id="teacherPassword" name="password" required
+                               class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <button type="submit"
+                            class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        Войти как Учитель
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Функция для обновления видимости форм
+    const roleToggle = document.getElementById('role-toggle');
+    const studentForm = document.getElementById('student-form-section');
+    const teacherForm = document.getElementById('teacher-form-section');
+
+    function updateFormVisibility() {
+        if (roleToggle.checked) {
+            studentForm.classList.add('hidden');
+            teacherForm.classList.remove('hidden');
+        } else {
+            studentForm.classList.remove('hidden');
+            teacherForm.classList.add('hidden');
+        }
+    }
+
+    roleToggle.addEventListener('change', updateFormVisibility);
+    updateFormVisibility();
+
+</script>
+
+</body>
+</html>
