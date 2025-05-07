@@ -15,6 +15,7 @@
             <h2 class="text-2xl font-bold text-blue-600">Ответы учеников</h2>
             <div>
                 <!-- Ссылка на страницу создания вопроса (маршрут Flask) -->
+<<<<<<< HEAD
                 <a href="{{ url_for('/create') }}" class="mr-3 text-sm text-blue-600 hover:text-blue-800">
                     <i class="fas fa-plus mr-1"></i> Новый вопрос
                 </a>
@@ -24,6 +25,17 @@
                 </a>
                 <!-- Ссылка на выход (маршрут Flask) -->
                 <a href="{{ url_for('logout') }}" class="text-sm text-blue-600 hover:text-blue-800">
+=======
+                <a href="/" class="mr-3 text-sm text-blue-600 hover:text-blue-800">
+                    <i class="fas fa-plus mr-1"></i> Новый вопрос
+                </a>
+                <!-- Кнопка Обновить -->
+                <a href="/teacher_main" class="mr-3 text-sm text-gray-600 hover:text-gray-800">
+                    <i class="fas fa-sync-alt mr-1"></i> Обновить таблицу
+                </a>
+                <!-- Ссылка на выход (маршрут Flask) -->
+                <a href="/" class="text-sm text-blue-600 hover:text-blue-800">
+>>>>>>> cfa4248 (логин работает, остальное немного тоже, есть изменения в шаблонах)
                     Выйти <i class="fas fa-sign-out-alt ml-1"></i>
                 </a>
             </div>

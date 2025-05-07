@@ -12,6 +12,7 @@
 
     <div class="max-w-2xl mx-auto bg-white rounded-xl shadow-md overflow-hidden p-8">
         <div class="flex justify-between items-center mb-6">
+<<<<<<< HEAD
             <h2 class="text-2xl font-bold text-blue-600">Ученик: {{ student_name }}</h2>
             <a href="{{ url_for('logout') }}" class="text-sm text-blue-600 hover:text-blue-800">
                 Выйти <i class="fas fa-sign-out-alt ml-1"></i>
@@ -24,6 +25,21 @@
 
             <form method="POST" action=""> <!-- Замените 'submit_answer' на имя вашего маршрута Flask -->
                 <input type="hidden" name="question_id" value="{{ current_question.id }}">
+=======
+            <h2 class="text-2xl font-bold text-blue-600">Ученик: {{ user_data['FIO'] }}</h2>
+            <a href="/logout/student/{{user_data['login']}}" class="text-sm text-blue-600 hover:text-blue-800">
+                Выйти <i class="fas fa-sign-out-alt ml-1"></i>
+            </a>
+        </div>
+        {% if lesson_status == 'Задан очередной вопрос' %}
+
+        <div class="mb-8 p-6 bg-gray-50 rounded-lg border border-gray-200">
+            <h3 class="text-lg font-medium text-gray-900 mb-4">Текущий вопрос:</h3>
+            <p class="text-gray-700 mb-6">{{ quest_data[0] }}</p>
+
+            <form method="POST">
+                <input type="hidden" name="question_id" value="current_question.id">
+>>>>>>> cfa4248 (логин работает, остальное немного тоже, есть изменения в шаблонах)
                 <div class="mt-4">
                     <label for="studentAnswer" class="block text-sm font-medium text-gray-700">Ваш ответ</label>
                     <input type="text" id="studentAnswer" name="studentAnswer" required
@@ -35,15 +51,27 @@
                 </button>
             </form>
         </div>
+<<<<<<< HEAD
+=======
+        {% else %}
+>>>>>>> cfa4248 (логин работает, остальное немного тоже, есть изменения в шаблонах)
         <div class="text-center py-12">
             <i class="fas fa-hourglass-half text-5xl text-gray-300 mb-4"></i>
             <h3 class="text-xl font-medium text-gray-700">Ожидание вопроса</h3>
             <p class="text-gray-500 mt-2">Пока нет активных вопросов от учителя.</p>
+<<<<<<< HEAD
             <a href="{{ url_for('/student') }}"
+=======
+            <a href="/test"
+>>>>>>> cfa4248 (логин работает, остальное немного тоже, есть изменения в шаблонах)
                class="mt-4 inline-flex justify-center py-2 px-4 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                 <i class="fas fa-sync-alt mr-2"></i> Обновить
             </a>
         </div>
+<<<<<<< HEAD
+=======
+        {% endif %}
+>>>>>>> cfa4248 (логин работает, остальное немного тоже, есть изменения в шаблонах)
     </div>
 </div>
 </body>
