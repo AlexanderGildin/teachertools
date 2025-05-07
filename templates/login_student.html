@@ -14,12 +14,13 @@
 <h1>Авторизация ученика</h1>
 <form class="login_form" method="post">
     <input type="login" class="form-control" id="login" aria-describedby="login" placeholder="Введите логин"
-           name="login">
+           name="login" >
     <input type="password" class="form-control" id="password" aria-describedby="password" placeholder="Введите пароль"
            name="password">
     <input type="teacher_login" class="form-control" id="teacher_login" aria-describedby="teacher_login"
            placeholder="Введите логин учителя"
            name="teacher_login">
     <button type="submit" class="btn btn-primary">Авторизоваться</button>
+    <p>{{message}}</p>
 </form>
 </body>

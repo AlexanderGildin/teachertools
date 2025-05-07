@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TeacherTools</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-100 min-h-screen">
+<div class="container mx-auto px-4 py-8">
+
+    <div class="max-w-2xl mx-auto bg-white rounded-xl shadow-md overflow-hidden p-8">
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-2xl font-bold text-blue-600">Создание вопроса</h2>
+            <div>
+                <!-- Ссылка на главную страницу учителя (маршрут Flask) -->
+                <a href="{{ url_for('/teacher_main') }}" class="mr-3 text-sm text-blue-600 hover:text-blue-800">
+                    <i class="fas fa-list mr-1"></i> К списку ответов
+                </a>
+                <!-- Ссылка на выход (маршрут Flask) -->
+                <a href="{{ url_for('logout') }}" class="text-sm text-blue-600 hover:text-blue-800">
+                    Выйти <i class="fas fa-sign-out-alt ml-1"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- Форма для создания вопроса -->
+        <form method="POST" action="{{ url_for('/create') }}">
+            <!-- Заменить 'create_question' на имя маршрута Flask -->
+            <div class="mb-6">
+                <label for="questionText" class="block text-sm font-medium text-gray-700">Текст вопроса</label>
+                <textarea id="questionText" name="questionText" rows="3" required
+                          class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"></textarea>
+            </div>
+
+            <div class="mb-6">
+                <label for="correctAnswer" class="block text-sm font-medium text-gray-700">Правильный ответ (для
+                    автопроверки)</label>
+                <input type="text" id="correctAnswer" name="correctAnswer" required
+                       class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+            </div>
+
+            <button type="submit"
+                    class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                Отправить вопрос ученикам
+            </button>
+        </form>
+    </div>
+</div>
+</body>
+</html>
