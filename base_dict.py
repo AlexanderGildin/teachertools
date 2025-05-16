@@ -9,8 +9,8 @@ class BaseDict():
         teacher_dict["status"] = "Пауза"
         self.dict[teacher_login] = teacher_dict
 
-    def add_question(self, teacher_login, question_text, correct_answer, mark):  # добавляет вопрос
-        self.dict[teacher_login]["question"].append([question_text, correct_answer, mark])
+    def add_question(self, teacher_login, question_text, correct_answer, weight):  # добавляет вопрос
+        self.dict[teacher_login]["question"].append([question_text, correct_answer, weight])
 
     def add_student_answer(self, teacher_login, student, answer):  # добавляет ответ ученика на вопрос
         if not self.dict[teacher_login]["answers"].get(student):  # проверка существует ли ученик в словаре с ответами

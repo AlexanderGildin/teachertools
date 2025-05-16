@@ -28,9 +28,11 @@ def start():
                 # если логина учителя не было на форме, то значит пользователь сам учитель
                 if request.form['role'] == 'teacher':
                     if user_data['role'] == 'teacher':
-                        # session['user_login'] = request.form['username']
-                        return make_response(
-                            f'Вы авторизованы под именем {request.form.get('username', 'Логин не задан')}')
+                        base_dict.add_teacher(request.form.get('username', '_'))
+                        base_dict.add_question(request.form.get('username', '_'),
+                                               'пустой вопрос для уравнения индексов', 0, 0)
+                        session['user_login'] = request.form['username']
+                        return redirect('/teacher')
                     else:
                         return make_response(render_template('login.html',
                                                              message='Вы не учитель'))
@@ -44,6 +46,12 @@ def start():
                             #  и в base dict на урок к учителю
                             base_dict.add_student_answer(request.form['teacher_login'], request.form['username'],
                                                          user_data['FIO'])
+                            # проверка, были ли уже заданы вопросы на уроке. если да - проставление всех вопросов,
+                            # кроме последнего, неверными
+                            lesson_data = base_dict.get_lesson_data(user)
+                            while len(lesson_data['answers'][request.form['username']]) < len(lesson_data['questions']) - 1:
+                                base_dict.add_student_answer(request.form['teacher_login'], request.form['username'], '')
+                            # обновление куки
                             session['user_login'] = request.form['username']
                             return redirect('/student')
                         return make_response(
@@ -59,15 +67,21 @@ def start():
             render_template('login.html',
                             message='Пользователь с таким логином не найден'))
     else:  # у нас авторизованный пользователь
-        # обратиться к бд к таблице Users, если нет записи в которой поле login == user
-        # тогда форма авторизации с надписью "такой пользователь не найден"
         user_data = get_user_by_login('users_database.db', session['user_login'])
+        if not user_data:
+            session['user_login'] = '_'
+            return redirect('/start')
         if user_data['role'] == 'student' and pupils_dict[user_data['login']] not in base_dict.dict.keys():
             return redirect(f'/logout/student/{user_data['login']}')
-        return make_response(user)
+        if user_data['role'] == 'student':
+            return redirect('/student')
+        if user_data['role'] == 'teacher' and user_data['login'] in base_dict.dict:
+            return redirect('/teacher')
+        if user_data['role'] == 'teacher':
+            return redirect(f'/logout/teacher/{user_data['login']}')
 
 
-@app.route("/logout/<role>/<user_login>", methods=['POST', 'GET'])
+@app.route("/logout/<role>/<user_login>", methods=['GET'])
 def out(role, user_login):
     if role == 'student':
         # если ключа с логином ученика в словаре нет, ошибки НЕ будет
@@ -79,32 +93,32 @@ def out(role, user_login):
 @app.route('/student', methods=['POST', 'GET'])
 def student():
     global pupils_dict, base_dict
-    # user = session.get('user_login', '_')
-    user = 'user_1'
+    user = session.get('user_login', '_')
+    # user = 'user_1'
     user_data = get_user_by_login('users_database.db', user)
     if user_data:
         teacher = pupils_dict.get(user, '')
         # если учителя по ключу нет, то авторизованного студента в pupils dict нет. может ли такое быть?
         if teacher:
-            if base_dict.get_lesson_status(teacher) == 'Задан очередной вопрос.':
+            if base_dict.get_lesson_status(teacher) == 'Задан очередной вопрос':
                 # данные по последнему вопросу в виде списка ["вопрос", "верный ответ", вес]
                 quest_data = base_dict.get_last_question_data(teacher)
+
                 # если число вопросов и число ответов ученика одинаково, ученик уже дал ответ на последний вопрос.
-                if len(base_dict.dict[teacher]['question']) == len(base_dict.dict[teacher]['answers'][user]) - 1:
+                if len(base_dict.dict[teacher]['question']) == len(base_dict.dict[teacher]['answers'][user]):
                     return render_template('student.html', lesson_status='Пауза')
-                # ЕСЛИ ученик зашел не с начала урока и вопросов было задано больше одного,
-                # сделать автоматические неверные ответы на предыдущие задания
 
                 # если ученик ответил на все вопросы кроме последнего, возвращаем вопрос
-                if len(base_dict.dict[teacher]['question']) == len(base_dict.dict[teacher]['answers'][user]) - 2:
+                if len(base_dict.dict[teacher]['question']) == len(base_dict.dict[teacher]['answers'][user]) - 1:
                     if request.method == 'POST':
                         # к нам пришел ответ ученика. добавление его в base_dict. форма ожидания следующего вопроса.
-                        base_dict.add_student_answer(teacher, user, request.form['answer'])
+                        base_dict.add_student_answer(teacher, user, request.form['studentAnswer'])
                         return redirect('/student')
+
                     # в другом случае рендерим форму вопроса
                     return render_template('student.html',
                                            lesson_status=base_dict.get_lesson_status(teacher), quest_data=quest_data)
-            if base_dict.get_lesson_status(teacher) == 'Пауза.':
+            if base_dict.get_lesson_status(teacher) == 'Пауза':
                 return render_template('student.html', lesson_status='Пауза')
     # школьник автоматически разлогинивается, если: 
     # - логина под которым он авторизован в бд нет
@@ -120,22 +134,42 @@ def teacher_lesson():
     if user:
         lesson_data = base_dict.get_lesson_data(user)
         if lesson_data:
-            if request.method == 'POST':
-                # добавление вопроса в base dict и перезагрузка страницы
-                base_dict.add_question(user, request.form["question"], request.form["correct_answer"],
-                                       request.form["weight"])
-                return redirect('/teacher')
-            return f''
-        # в другом случае у учителя не идет урок, поэтому мы автоматически начинаем новый и перезагружаем страницу
-        base_dict.add_teacher(user)
-        return redirect('/teacher')
+            # if request.method == 'POST':
+            #     # вроде как добавление вопроса на отдельной странице. для этого другой роут
+            #     # добавление вопроса в base dict и перезагрузка страницы
+            #     base_dict.add_question(user, request.form["question"], request.form["correct_answer"],
+            #                            request.form["weight"])
+            #     return redirect('/teacher')
+            return 'здесь должна быть форма учитела когда у него идет урок'
+        # в другом случае у учителя не идет урок. при завершении несуществующего урока ошибки не будет
+        return redirect(f'/teacher/finish_lesson/{user}')
     return redirect(f'/logout/teacher/{user}')
+
+
+@app.route('/new_quest', methods=['POST', 'GET'])
+def new_quest():
+    global base_dict
+    user = session.get('user_login', '_')
+    if request.method == 'POST':
+        base_dict.add_question(user, request.values['question_text'], request.values['correct_ans'], request.values['weight'])
+        base_dict.dict[user]['status'] = 'Задан очередной вопрос'
+
+        # пройтись по всем ученикам на уроке и проверить дали ли они ответ на последние вопросы.
+        # если нет - сразу делать их неверными
+        lesson_data = base_dict.get_lesson_data(user)
+        for pupil, answers in lesson_data['answers'].items():
+            while len(answers) < len(lesson_data['questions']) - 1:
+                base_dict.add_student_answer(user, pupil, '')
+        return redirect('/teacher')
+    return 'здесь должна быть форма создания нового вопроса'
 
 
 @app.route('/teacher/finish_lesson/<teacher>')
 def finish(teacher):
     global base_dict
     base_dict.dict.pop(teacher)
+    base_dict.add_teacher(teacher)
+    base_dict.add_question(teacher,'пустой вопрос для уравнения индексов', 0, 0)
     return redirect('/teacher')
 
 
