@@ -1,0 +1,4 @@
+Flask==3.1.1
+python_bcrypt==0.3.2
+SQLAlchemy==2.0.29
+sqlalchemy_serializer==1.4.22
