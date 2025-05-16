@@ -15,20 +15,42 @@
             <h2 class="text-2xl font-bold text-blue-600">Ответы учеников</h2>
             <div>
                 <!-- Ссылка на страницу создания вопроса (маршрут Flask) -->
-                <a href="/" class="mr-3 text-sm text-blue-600 hover:text-blue-800">
+                <a href="/new_quest" class="mr-3 text-sm text-blue-600 hover:text-blue-800">
                     <i class="fas fa-plus mr-1"></i> Новый вопрос
                 </a>
                 <!-- Кнопка Обновить -->
-                <a href="/teacher_main" class="mr-3 text-sm text-gray-600 hover:text-gray-800">
+                <a href="/teacher" class="mr-3 text-sm text-gray-600 hover:text-gray-800">
                     <i class="fas fa-sync-alt mr-1"></i> Обновить таблицу
                 </a>
                 <!-- Ссылка на выход (маршрут Flask) -->
-                <a href="/" class="text-sm text-blue-600 hover:text-blue-800">
+                <a href="/logout/teacher" class="text-sm text-blue-600 hover:text-blue-800">
                     Выйти <i class="fas fa-sign-out-alt ml-1"></i>
                 </a>
             </div>
         </div>
         <!--Здесь должна быть таблица ответов-->
+        <table class="table-auto w-full border-collapse border border-gray-300">
+            <thead>
+                <tr>
+                    <th class="border border-gray-300 px-4 py-2">ФИО ученика</th>
+                    {% for question in questions %}
+                        <th class="border border-gray-300 px-4 py-2">Вопрос {{ loop.index }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for pupil, answers in answers.items() %}
+                <tr>
+                    <td class="border border-gray-300 px-4 py-2">{{ pupil }}</td>
+                    {% for answer, correct in answers %}
+                        <td class="border border-gray-300 px-4 py-2 {% if answer == correct %}bg-green-200{% else %}bg-red-200{% endif %}">
+                            {{ answer }}
+                        </td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
 </div>
 </body>

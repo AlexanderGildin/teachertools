@@ -14,30 +14,28 @@
         <div class="flex justify-between items-center mb-6">
             <h2 class="text-2xl font-bold text-blue-600">Создание вопроса</h2>
             <div>
-                <!-- Ссылка на главную страницу учителя (маршрут Flask) -->
-                <a href="{{ url_for('/teacher_main') }}" class="mr-3 text-sm text-blue-600 hover:text-blue-800">
+                <!-- Ссылка на главную страницу учителя -->
+                <a href="/teacher" class="mr-3 text-sm text-blue-600 hover:text-blue-800">
                     <i class="fas fa-list mr-1"></i> К списку ответов
                 </a>
-                <!-- Ссылка на выход (маршрут Flask) -->
-                <a href="{{ url_for('logout') }}" class="text-sm text-blue-600 hover:text-blue-800">
+                <!-- Ссылка на выход -->
+                <a href="/logout/teacher/{{ user_login }}" class="text-sm text-blue-600 hover:text-blue-800">
                     Выйти <i class="fas fa-sign-out-alt ml-1"></i>
                 </a>
             </div>
         </div>
 
         <!-- Форма для создания вопроса -->
-        <form method="POST" action="{{ url_for('/create') }}">
-            <!-- Заменить 'create_question' на имя маршрута Flask -->
+        <form method="POST" action="/new_quest">
             <div class="mb-6">
                 <label for="questionText" class="block text-sm font-medium text-gray-700">Текст вопроса</label>
-                <textarea id="questionText" name="questionText" rows="3" required
+                <textarea id="questionText" name="question" rows="3" required
                           class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"></textarea>
             </div>
 
             <div class="mb-6">
-                <label for="correctAnswer" class="block text-sm font-medium text-gray-700">Правильный ответ (для
-                    автопроверки)</label>
-                <input type="text" id="correctAnswer" name="correctAnswer" required
+                <label for="correctAnswer" class="block text-sm font-medium text-gray-700">Правильный ответ (для автопроверки)</label>
+                <input type="text" id="correctAnswer" name="correct_answer" required
                        class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
             </div>
 

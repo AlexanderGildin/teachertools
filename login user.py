@@ -81,11 +81,16 @@ def start():
             return redirect(f'/logout/teacher/{user_data['login']}')
 
 
+@app.route('/logout/teacher')
+def logout_teacher_shortcut():
+    user = session.get('user_login', '_')
+    return redirect(f'/logout/teacher/{user}')
+
+
 @app.route("/logout/<role>/<user_login>", methods=['GET'])
 def out(role, user_login):
     if role == 'student':
-        # если ключа с логином ученика в словаре нет, ошибки НЕ будет
-        pupils_dict.pop(user_login)
+        pupils_dict.pop(user_login, None)  # безопасно удаляем
     session['user_login'] = '_'
     return redirect('/start')
 
@@ -94,36 +99,35 @@ def out(role, user_login):
 def student():
     global pupils_dict, base_dict
     user = session.get('user_login', '_')
-    # user = 'user_1'
+    print(f"[DEBUG] Current user: {user}")  # Debugging output
     user_data = get_user_by_login('users_database.db', user)
-    if user_data:
-        teacher = pupils_dict.get(user, '')
-        # если учителя по ключу нет, то авторизованного студента в pupils dict нет. может ли такое быть?
-        if teacher:
-            if base_dict.get_lesson_status(teacher) == 'Задан очередной вопрос':
-                # данные по последнему вопросу в виде списка ["вопрос", "верный ответ", вес]
-                quest_data = base_dict.get_last_question_data(teacher)
-
-                # если число вопросов и число ответов ученика одинаково, ученик уже дал ответ на последний вопрос.
-                if len(base_dict.dict[teacher]['question']) == len(base_dict.dict[teacher]['answers'][user]):
-                    return render_template('student.html', lesson_status='Пауза')
-
-                # если ученик ответил на все вопросы кроме последнего, возвращаем вопрос
-                if len(base_dict.dict[teacher]['question']) == len(base_dict.dict[teacher]['answers'][user]) - 1:
-                    if request.method == 'POST':
-                        # к нам пришел ответ ученика. добавление его в base_dict. форма ожидания следующего вопроса.
-                        base_dict.add_student_answer(teacher, user, request.form['studentAnswer'])
-                        return redirect('/student')
-
-                    # в другом случае рендерим форму вопроса
-                    return render_template('student.html',
-                                           lesson_status=base_dict.get_lesson_status(teacher), quest_data=quest_data)
-            if base_dict.get_lesson_status(teacher) == 'Пауза':
-                return render_template('student.html', lesson_status='Пауза')
-    # школьник автоматически разлогинивается, если: 
-    # - логина под которым он авторизован в бд нет
-    # - логина школьника нет в pupils dict
-    # - урок у учителя к которому он прикреплен не идет
+    if not user_data:
+        print("[DEBUG] User data not found in database.")  # Debugging output
+        return redirect('/start')
+    teacher = pupils_dict.get(user, '')
+    print(f"[DEBUG] Teacher for user {user}: {teacher}")  # Debugging output
+    if not teacher or teacher not in base_dict.dict:
+        print("[DEBUG] Teacher not found or not in base_dict.")  # Debugging output
+        return redirect(f'/logout/student/{user}')
+    lesson_status = base_dict.get_lesson_status(teacher)
+    print(f"[DEBUG] Lesson status for teacher {teacher}: {lesson_status}")  # Debugging output
+    if lesson_status == 'Задан очередной вопрос':
+        quest_data = base_dict.get_last_question_data(teacher)
+        print(f"[DEBUG] Last question data: {quest_data}")  # Debugging output
+        answers = base_dict.dict[teacher]['answers'].get(user, [])
+        num_questions = len(base_dict.dict[teacher]['question'])
+        num_answers = len(answers)
+        print(f"[DEBUG] Number of questions: {num_questions}, Number of answers: {num_answers}")  # Debugging output
+        if num_questions == num_answers:
+            return render_template('student.html', lesson_status='Пауза')
+        if num_questions == num_answers + 1:
+            if request.method == 'POST':
+                base_dict.add_student_answer(teacher, user, request.form['studentAnswer'])
+                return redirect('/student')
+            return render_template('student.html', lesson_status=lesson_status, quest_data=quest_data)
+    if lesson_status == 'Пауза':
+        return render_template('student.html', lesson_status='Пауза')
+    print("[DEBUG] Redirecting to logout due to invalid lesson status.")  # Debugging output
     return redirect(f'/logout/student/{user}')
 
 
@@ -133,14 +137,26 @@ def teacher_lesson():
     user = session.get('user_login', '_')
     if user:
         lesson_data = base_dict.get_lesson_data(user)
+        print(f"[DEBUG] Lesson data before validation: {lesson_data}")  # Debugging output
+
+        # Проверка и инициализация ключей 'answers' и 'questions'
+        if 'answers' not in lesson_data:
+            print("[WARNING] 'answers' key is missing in lesson_data. Initializing...")
+            lesson_data['answers'] = {}
+        if 'questions' not in lesson_data:
+            print("[WARNING] 'questions' key is missing in lesson_data. Initializing...")
+            lesson_data['questions'] = []
+
+        for pupil, answers in lesson_data['answers'].items():
+            while len(answers) < len(lesson_data['questions']) - 1:
+                base_dict.add_student_answer(user, pupil, '')
         if lesson_data:
-            # if request.method == 'POST':
-            #     # вроде как добавление вопроса на отдельной странице. для этого другой роут
-            #     # добавление вопроса в base dict и перезагрузка страницы
-            #     base_dict.add_question(user, request.form["question"], request.form["correct_answer"],
-            #                            request.form["weight"])
-            #     return redirect('/teacher')
-            return 'здесь должна быть форма учитела когда у него идет урок'
+            questions = lesson_data['questions']
+            answers = {
+                pupil: [(answer, question[1]) for answer, question in zip(answers, questions)]
+                for pupil, answers in lesson_data['answers'].items()
+            }
+            return render_template('teacher_main.html', questions=questions, answers=answers)
         # в другом случае у учителя не идет урок. при завершении несуществующего урока ошибки не будет
         return redirect(f'/teacher/finish_lesson/{user}')
     return redirect(f'/logout/teacher/{user}')
@@ -151,17 +167,24 @@ def new_quest():
     global base_dict
     user = session.get('user_login', '_')
     if request.method == 'POST':
-        base_dict.add_question(user, request.values['question_text'], request.values['correct_ans'], request.values['weight'])
-        base_dict.dict[user]['status'] = 'Задан очередной вопрос'
-
-        # пройтись по всем ученикам на уроке и проверить дали ли они ответ на последние вопросы.
-        # если нет - сразу делать их неверными
-        lesson_data = base_dict.get_lesson_data(user)
-        for pupil, answers in lesson_data['answers'].items():
-            while len(answers) < len(lesson_data['questions']) - 1:
-                base_dict.add_student_answer(user, pupil, '')
-        return redirect('/teacher')
-    return 'здесь должна быть форма создания нового вопроса'
+        question = request.form.get('question')
+        correct_answer = request.form.get('correct_answer')
+        weight = request.form.get('weight', 1)  # по умолчанию 1
+        if question and correct_answer:
+            base_dict.add_question(user, question, correct_answer, weight)
+            base_dict.dict[user]['status'] = 'Задан очередной вопрос'
+            # пройтись по всем ученикам на уроке и проверить дали ли они ответ на последние вопросы.
+            lesson_data = base_dict.get_lesson_data(user)
+            print(f"[DEBUG] Lesson data: {lesson_data}")  # Debugging output
+            if 'answers' not in lesson_data:
+                print("[ERROR] 'answers' key is missing in lesson_data")
+                return make_response("Internal Server Error: Missing 'answers' key", 500)
+            for pupil, answers in lesson_data['answers'].items():
+                while len(answers) < len(lesson_data['questions']) - 1:
+                    base_dict.add_student_answer(user, pupil, '')
+            return redirect('/teacher')
+        return make_response('Некорректные данные формы', 400)
+    return render_template('create.html', user_login=user)
 
 
 @app.route('/teacher/finish_lesson/<teacher>')
