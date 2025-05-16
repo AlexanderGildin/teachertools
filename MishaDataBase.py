@@ -1,6 +1,6 @@
 import sqlite3
 from bcrypt import hashpw, gensalt
-from data.users import User
+from data.Users import User
 
 
 def create_database(db_name):
