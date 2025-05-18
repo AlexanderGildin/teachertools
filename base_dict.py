@@ -6,17 +6,16 @@ class BaseDict():
         teacher_dict = {}
         teacher_dict["question"] = []
         teacher_dict["answers"] = {}
-        teacher_dict["status"] = "Пауза"
+        teacher_dict["status"] = "Задан очередной вопрос"
         self.dict[teacher_login] = teacher_dict
 
     def add_question(self, teacher_login, question_text, correct_answer, weight):  # добавляет вопрос
         self.dict[teacher_login]["question"].append([question_text, correct_answer, weight])
 
-    def add_student_answer(self, teacher_login, student, answer):  # добавляет ответ ученика на вопрос
-        if not self.dict[teacher_login]["answers"].get(student):  # проверка существует ли ученик в словаре с ответами
-             self.dict[teacher_login]["answers"][student] = [] # в таком случае нужно еще и вытаскивать ФИО ученика
-        mark = answer == self.dict[teacher_login]["question"][-1][
-            1]  # проверка совпадает ли ответ ученика с правильным ответом на последний вопрос
+    def add_student_answer(self, teacher_login, student, answer, mark):  # добавляет ответ ученика на вопрос
+        # если ученика еще нет на уроке, создаем ключ с учеником и пустой список как значение. (к нам пришли ФИО)
+        if not self.dict[teacher_login]["answers"].get(student):
+            self.dict[teacher_login]["answers"][student] = []
         self.dict[teacher_login]["answers"][student].append([answer, mark])
 
     def change_mark(self, teacher_login, student):  # меняет правильность или неправильность последнего ответа ученика
@@ -26,6 +25,7 @@ class BaseDict():
         try:
             self.dict[teacher_login]["answers"][student][quest_index][1] = not \
                 self.dict[teacher_login]["answers"][student][quest_index][1]
+
             return True
         except:
             return False
@@ -35,6 +35,12 @@ class BaseDict():
             return self.dict[teacher_login]["status"]
         except:
             return ""
+
+    def change_lesson_status(self, teacher_login):
+        if self.dict[teacher_login]["status"] == 'Пауза':
+            self.dict[teacher_login]["status"] = 'Задан очередной вопрос'
+        elif self.dict[teacher_login]["status"] == 'Задан очередной вопрос':
+            self.dict[teacher_login]["status"] = 'Пауза'
 
     def get_last_question_data(self, teacher_login):
         try:

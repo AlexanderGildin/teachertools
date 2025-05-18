@@ -1,6 +1,7 @@
 import sqlite3
-from bcrypt import hashpw, gensalt
+from bcrypt import hashpw, gensalt, checkpw
 from data.Users import User
+from data import db_session
 
 
 def create_database(db_name):
@@ -56,17 +57,22 @@ def add_user(db_name, fio, login, h_password, role, status_str, status_int):
         conn.close()
 
 
-def get_user_by_login(db_session, user_login):
-    # fields = ['FIO', 'login', 'h_password', 'role', 'status_str', 'status_int']
-    # conn = sqlite3.connect(db_name)
-    # cursor = conn.cursor()
-    # res = cursor.execute(f'''SELECT * FROM Users WHERE Login = "{user_login}"''').fetchone()
-    # conn.close()
-    user = db_session.query(User).filter(User.Login == user_login).first()
+def get_user_by_login(user_login):
+    db_sess = db_session.create_session()
+    user = db_sess.query(User).filter(User.Login == user_login).first()
     if user:
         return user
     else:
         print(f'Пользователь с логином {user_login} не найден')
+        return False
+
+
+def get_FIO_by_username(user_login):
+    db_sess = db_session.create_session()
+    res = db_sess.query(User).filter(User.Login == user_login).first()
+    if res:
+        return res.FIO
+    else:
         return False
 
 #

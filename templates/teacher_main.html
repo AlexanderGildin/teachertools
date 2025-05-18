@@ -4,56 +4,66 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TeacherTools</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons (замена Font Awesome) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <!-- Ваш кастомный CSS (если нужен) -->
+    <link rel="stylesheet" type="text/css" href="{{css_url}}">
 </head>
-<body class="bg-gray-100 min-h-screen">
-<div class="container mx-auto px-4 py-8">
+<body class="bg-light min-vh-100">
+<div class="container py-4 px-4">
 
-    <div class="max-w-6xl mx-auto bg-white rounded-xl shadow-md overflow-hidden p-8">
-        <div class="flex justify-between items-center mb-6">
-            <h2 class="text-2xl font-bold text-blue-600">Ответы учеников</h2>
+    <div class="mx-auto bg-white rounded-3 shadow p-4" style="max-width: 1000px;">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="h2 text-primary fw-bold">Ответы учеников</h2>
             <div>
-                <!-- Ссылка на страницу создания вопроса (маршрут Flask) -->
-                <a href="/create" class="mr-3 text-sm text-blue-600 hover:text-blue-800">
-                    <i class="fas fa-plus mr-1"></i> Новый вопрос
+                <a href="/create" class="btn btn-link text-decoration-none me-2">
+                    <i class="bi bi-plus-circle me-1"></i>Новый вопрос
                 </a>
-                <!-- Кнопка Обновить -->
-                <a href="/teacher" class="mr-3 text-sm text-gray-600 hover:text-gray-800">
-                    <i class="fas fa-sync-alt mr-1"></i> Обновить таблицу
+                <a href="/teacher" class="btn btn-link text-decoration-none me-2 text-secondary">
+                    <i class="bi bi-arrow-clockwise me-1"></i>Обновить таблицу
                 </a>
-                    <a href="/logout/teacher/{{user}}" class="text-sm text-blue-600 hover:text-blue-800">
-                        Выйти<i class="fas fa-sign-out-alt ml-1"></i>
-                    </a>
+                <a href="/logout/teacher/{{user}}" class="btn btn-link text-decoration-none text-primary">
+                    Выйти<i class="bi bi-box-arrow-right ms-1"></i>
+                </a>
             </div>
         </div>
-        <table class="table-auto w-full border-collapse border border-gray-300">
-            <thead>
+
+        <div class="table-responsive">
+            <table class="table table-bordered">
+                <thead class="table-light">
                 <tr>
-                    <th class="border border-gray-300 px-4 py-2">ФИО ученика</th>
+                    <th class="px-4 py-2">ФИО ученика</th>
                     {% for question in questions %}
-                    {% if loop.index > 1 %}
-                        <th class="border border-gray-300 px-4 py-2">Вопрос {{ loop.index - 1 }}</th>
-                    {% endif %}
+                    <th class="px-4 py-2">{{ question[0] }}</th>
                     {% endfor %}
                 </tr>
-            </thead>
-            <tbody>
+                </thead>
+                <tbody>
                 {% for pupil, answers in answers.items() %}
                 <tr>
-                    <td class="border border-gray-300 px-4 py-2">{{ pupil }}</td>
-                    {% for answer, correct in answers %}
-                    {% if loop.index > 1 %}
-                        <td class="border border-gray-300 px-4 py-2 {% if answer == correct %}bg-green-200{% else %}bg-red-200{% endif %}">
-                            {{ answer }}
+                    <td class="px-4 py-2">{{ pupil[0] }}</td>
+                    <div class="btn-group" role="group" aria-label="Basic example">
+                        {% for answer, mark in answers %}
+                        <td class="p-0 {% if mark == True %}bg-success bg-opacity-25{% else %}bg-danger bg-opacity-25{% endif %}">
+                            <a class="btn btn-link text-decoration-none text-dark" href="/{{pupil[1]}}/{{loop.index}}">{{ answer }}</a>
                         </td>
-                    {% endif %}
-                    {% endfor %}
+                        {% endfor %}
+                    </div>
+
                 </tr>
                 {% endfor %}
-            </tbody>
-        </table>
+                </tbody>
+            </table>
+        </div>
+        <a href="/change_lesson_status" class="btn btn-link text-decoration-none me-2">
+            {{change_status}}
+        </a>
     </div>
 </div>
+
+<!-- Bootstrap JS (необязательно, если не нужны динамические элементы) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
