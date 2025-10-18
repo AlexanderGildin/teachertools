@@ -37,7 +37,7 @@
             <form id="student-form-section" method="POST">
                 <input type="hidden" name="role" value="student">
                 <div class="mb-3">
-                    <label for="studentName" class="form-label">ФИО ученика</label>
+                    <label for="studentName" class="form-label">Логин Ученика</label>
                     <input type="text" id="studentName" name="username" required class="form-control">
                 </div>
                 <div class="mb-3">
@@ -51,9 +51,14 @@
                 {% if message %}
                 <div class="mb-3 text-danger">{{ message }}</div>
                 {% endif %}
+                <div class="d-grid gap-2">
                 <button type="submit" class="btn btn-primary w-100">
                     Войти как Ученик
                 </button>
+                <a href="/register/student" class="btn btn-outline-secondary py-2">
+                    <i class="bi bi-arrow-right me-2"></i>Зарегистрироваться как Ученик
+                </a>
+                </div>
             </form>
 
             <form id="teacher-form-section" method="POST">
@@ -69,9 +74,16 @@
                 {% if message %}
                 <div class="mb-3 text-danger">{{ message }}</div>
                 {% endif %}
+                <div class="d-grid gap-2">
                 <button type="submit" class="btn btn-primary w-100">
                     Войти как Учитель
                 </button>
+                <a href="/register/teacher" class="btn btn-outline-secondary py-2">
+                    <i class="bi bi-arrow-right me-2"></i>Зарегистрироваться как Учитель
+                </a>
+                </div>
+<!--                <a class="btn btn-link text-decoration-none text-dark" href="/register/teacher">-->
+<!--                    Зарегистрироваться как Учитель</a>-->
             </form>
         </div>
     </div>

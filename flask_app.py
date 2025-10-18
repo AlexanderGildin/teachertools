@@ -91,6 +91,25 @@ def start():
             return redirect(f'/logout/teacher/{user_data.Login}')
 
 
+@app.route('/register/<role>', methods=['GET', 'POST'])
+def reg_stud(role):
+    if role == 'student':
+        text = 'Ученика'
+    else:
+        text = 'Учителя'
+    if request.method == 'GET':
+        return make_response(render_template('register.html', text=text, role=role))
+    else:
+        add_user('db/users_database.db', request.form['fullName'], request.form['username'], request.form['password'], role, '',
+                 0)
+        return redirect('/start')
+
+
+# @app.route('/register/teacher')
+# def reg_teach():
+#     return make_response(render_template('register.html', role='Учителя'))
+
+
 @app.route("/logout/<role>/<user_login>", methods=['GET'])
 def out(role, user_login):
     if role == 'student':

@@ -30,11 +30,11 @@ def create_database(db_name):
     print(f"База данных '{db_name}' и таблица 'Users' успешно созданы.")
 
 
-def add_user(db_name, fio, login, h_password, role, status_str, status_int):
+def add_user(db_name, fio, login, password, role, status_str, status_int):
     # Создаем подключение к базе данных
     conn = sqlite3.connect(db_name)
     cursor = conn.cursor()
-    h_password = hashpw(bytes(h_password, 'utf-8'), salt=gensalt())
+    h_password = hashpw(bytes(password, 'utf-8'), salt=gensalt())
 
     # Вставляем нового пользователя в таблицу
     try:
