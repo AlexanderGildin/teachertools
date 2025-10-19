@@ -91,8 +91,8 @@ def start():
             return redirect(f'/logout/teacher/{user_data.Login}')
 
 
-@app.route('/register/<role>', methods=['GET', 'POST'])
-def reg_stud(role):
+@app.route('/registration/<role>', methods=['GET', 'POST'])
+def registration(role):
     if role == 'student':
         text = 'Ученика'
     else:
@@ -100,14 +100,12 @@ def reg_stud(role):
     if request.method == 'GET':
         return make_response(render_template('register.html', text=text, role=role))
     else:
+        u = get_user_by_login(request.form['username'])
+        if u:
+            return make_response(render_template('register.html', text=text, role=role, message='Логин занят.', fields=request.form))
         add_user('db/users_database.db', request.form['fullName'], request.form['username'], request.form['password'], role, '',
                  0)
         return redirect('/start')
-
-
-# @app.route('/register/teacher')
-# def reg_teach():
-#     return make_response(render_template('register.html', role='Учителя'))
 
 
 @app.route("/logout/<role>/<user_login>", methods=['GET'])
@@ -165,7 +163,7 @@ def student():
                         print('student к нам пришел ответ на последний вопрос')
                         # к нам пришел ответ ученика. добавление его в base_dict. форма ожидания следующего вопроса.
                         base_dict.add_student_answer(teacher, user, request.form['studentAnswer'],
-                                                     request.form['studentAnswer'] == quest_data[1])
+                                                     request.form['studentAnswer'].lower() == quest_data[1].lower())
                         return redirect('/student')
                     print('student все вопросы кроме последнего, возвращаем вопрос')
                     # в другом случае рендерим форму вопроса
@@ -281,4 +279,4 @@ if __name__ == '__main__':
     db_session.global_init("db/users_database.db")
     pupils_dict = {}
     base_dict = BaseDict()
-    app.run(port=8080, host='192.168.1.106')
+    app.run(port=8080, host='127.0.0.1')
